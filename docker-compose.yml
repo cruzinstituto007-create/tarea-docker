@@ -1,0 +1,35 @@
+services:
+  postgres_db:
+      image: postgres:16-alpine
+      container_name: postgres_container
+      environment:
+        POSTGRES_DB: db_cruz
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+        PGDATA: /var/lib/postgresql/data/pgdata
+      secrets:
+        - db_password
+      ports:
+        - "5432:5432"
+      volumes:
+        - pg_data:/var/lib/postgresql/data
+        - pg_logs:/var/log/postgresql
+        - ./config/99-custom.conf:/etc/postgresql/postgresql.conf
+      command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]   
+      networks:
+        - red_segura
+      restart: unless-stopped
+
+volumes:
+  pg_data:
+    name: pg_data_volume
+  pg_logs:
+    name: pg_logs_volume
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+
+networks:
+  red_segura:
+    driver: bridge
+    name: red_brigde_cruz
